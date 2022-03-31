@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 31, 2022 at 09:01 AM
+-- Generation Time: Mar 31, 2022 at 10:46 AM
 -- Server version: 10.4.21-MariaDB
 -- PHP Version: 8.0.12
 
@@ -95,12 +95,13 @@ CREATE TABLE `location` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mode_of_pay`
+-- Table structure for table `payment`
 --
 
-CREATE TABLE `mode_of_pay` (
+CREATE TABLE `payment` (
   `id` int(11) NOT NULL,
-  `pay_type` varchar(20) NOT NULL,
+  `payment_method_id` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
   `created_timestamp` datetime NOT NULL,
   `updated_timestamp` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -108,13 +109,12 @@ CREATE TABLE `mode_of_pay` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `payment`
+-- Table structure for table `payment_method`
 --
 
-CREATE TABLE `payment` (
+CREATE TABLE `payment_method` (
   `id` int(11) NOT NULL,
-  `pay_mode_id` int(11) NOT NULL,
-  `amount` int(11) NOT NULL,
+  `pay_type` varchar(20) NOT NULL,
   `created_timestamp` datetime NOT NULL,
   `updated_timestamp` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -205,17 +205,17 @@ ALTER TABLE `location`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `mode_of_pay`
---
-ALTER TABLE `mode_of_pay`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `payment`
 --
 ALTER TABLE `payment`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `pay_mode_fk` (`pay_mode_id`);
+  ADD KEY `pay_mode_fk` (`payment_method_id`);
+
+--
+-- Indexes for table `payment_method`
+--
+ALTER TABLE `payment_method`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `rating`
@@ -275,15 +275,15 @@ ALTER TABLE `location`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `mode_of_pay`
---
-ALTER TABLE `mode_of_pay`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `payment_method`
+--
+ALTER TABLE `payment_method`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -331,7 +331,7 @@ ALTER TABLE `license`
 -- Constraints for table `payment`
 --
 ALTER TABLE `payment`
-  ADD CONSTRAINT `pay_mode_fk` FOREIGN KEY (`pay_mode_id`) REFERENCES `mode_of_pay` (`id`);
+  ADD CONSTRAINT `pay_mode_fk` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`);
 
 --
 -- Constraints for table `trip`
