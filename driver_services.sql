@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2022 at 07:25 PM
+-- Generation Time: Mar 31, 2022 at 09:01 AM
 -- Server version: 10.4.21-MariaDB
 -- PHP Version: 8.0.12
 
@@ -57,7 +57,7 @@ CREATE TABLE `driver` (
   `id` int(11) NOT NULL,
   `user_id` int(20) NOT NULL,
   `category_id` int(20) NOT NULL,
-  `ratings` int(10) NOT NULL,
+  `rating_id` int(10) NOT NULL,
   `created_timestamp` datetime NOT NULL,
   `updated_timestamp` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -85,9 +85,9 @@ CREATE TABLE `license` (
 
 CREATE TABLE `location` (
   `id` int(11) NOT NULL,
-  `live_location` point NOT NULL,
-  `starting_location` point NOT NULL,
-  `ending_location` point NOT NULL,
+  `live_location` double NOT NULL,
+  `starting_location` double NOT NULL,
+  `ending_location` double NOT NULL,
   `created_timestamp` datetime NOT NULL,
   `updated_timestamp` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -95,10 +95,10 @@ CREATE TABLE `location` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mode of pay`
+-- Table structure for table `mode_of_pay`
 --
 
-CREATE TABLE `mode of pay` (
+CREATE TABLE `mode_of_pay` (
   `id` int(11) NOT NULL,
   `pay_type` varchar(20) NOT NULL,
   `created_timestamp` datetime NOT NULL,
@@ -122,12 +122,12 @@ CREATE TABLE `payment` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ratings`
+-- Table structure for table `rating`
 --
 
-CREATE TABLE `ratings` (
-  `id` int(11) DEFAULT NULL,
-  `ratings` int(10) NOT NULL,
+CREATE TABLE `rating` (
+  `id` int(11) NOT NULL,
+  `rating` int(10) NOT NULL,
   `created_timestamp` datetime NOT NULL,
   `updated_timestamp` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -139,12 +139,12 @@ CREATE TABLE `ratings` (
 --
 
 CREATE TABLE `trip` (
-  `id` int(11) NOT NULL,
+  `id` int(20) NOT NULL,
   `location_id` int(20) NOT NULL,
-  `category_id` int(10) NOT NULL,
-  `payment_id` int(10) NOT NULL,
-  `driver_id` int(10) NOT NULL,
-  `customer_id` int(10) NOT NULL,
+  `category_id` int(20) NOT NULL,
+  `payment_id` int(20) NOT NULL,
+  `driver_id` int(20) NOT NULL,
+  `customer_id` int(20) NOT NULL,
   `created_time_stamp` datetime NOT NULL,
   `updated_time_stamp` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -180,19 +180,23 @@ ALTER TABLE `category`
 -- Indexes for table `customer`
 --
 ALTER TABLE `customer`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id_fk2` (`user_id`);
 
 --
 -- Indexes for table `driver`
 --
 ALTER TABLE `driver`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id_fk` (`user_id`),
+  ADD KEY `category_id_fk` (`category_id`);
 
 --
 -- Indexes for table `license`
 --
 ALTER TABLE `license`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `category_fk2` (`category_id`);
 
 --
 -- Indexes for table `location`
@@ -201,22 +205,34 @@ ALTER TABLE `location`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `mode of pay`
+-- Indexes for table `mode_of_pay`
 --
-ALTER TABLE `mode of pay`
+ALTER TABLE `mode_of_pay`
   ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `payment`
 --
 ALTER TABLE `payment`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pay_mode_fk` (`pay_mode_id`);
+
+--
+-- Indexes for table `rating`
+--
+ALTER TABLE `rating`
   ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `trip`
 --
 ALTER TABLE `trip`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `customer fk2` (`customer_id`),
+  ADD KEY `driver_ fk2` (`driver_id`),
+  ADD KEY `category_fk3` (`category_id`),
+  ADD KEY `location_id_fk` (`location_id`),
+  ADD KEY `payment_fk` (`payment_id`);
 
 --
 -- Indexes for table `user`
@@ -259,9 +275,9 @@ ALTER TABLE `location`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `mode of pay`
+-- AUTO_INCREMENT for table `mode_of_pay`
 --
-ALTER TABLE `mode of pay`
+ALTER TABLE `mode_of_pay`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -271,16 +287,61 @@ ALTER TABLE `payment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `rating`
+--
+ALTER TABLE `rating`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `trip`
 --
 ALTER TABLE `trip`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `customer`
+--
+ALTER TABLE `customer`
+  ADD CONSTRAINT `user_id_fk2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `driver`
+--
+ALTER TABLE `driver`
+  ADD CONSTRAINT `category_id_fk` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
+  ADD CONSTRAINT `user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `license`
+--
+ALTER TABLE `license`
+  ADD CONSTRAINT `category_fk2` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`);
+
+--
+-- Constraints for table `payment`
+--
+ALTER TABLE `payment`
+  ADD CONSTRAINT `pay_mode_fk` FOREIGN KEY (`pay_mode_id`) REFERENCES `mode_of_pay` (`id`);
+
+--
+-- Constraints for table `trip`
+--
+ALTER TABLE `trip`
+  ADD CONSTRAINT `category_fk3` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
+  ADD CONSTRAINT `customer fk2` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`),
+  ADD CONSTRAINT `driver_ fk2` FOREIGN KEY (`driver_id`) REFERENCES `driver` (`id`),
+  ADD CONSTRAINT `location_id_fk` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`),
+  ADD CONSTRAINT `payment_fk` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
